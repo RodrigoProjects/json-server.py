@@ -1,6 +1,7 @@
 import sys
 import json
 import flask
+import threading
 from routes.handler import routesCreator
 
 
@@ -27,7 +28,9 @@ def main(args):
     
     app = flask.Flask(__name__)
 
-    routesCreator(app, json_data)
+    # args[1] is the json file.
+
+    routesCreator(app, args[1] , threading.Lock())
     
     app.run(debug=True, port=port)
 
