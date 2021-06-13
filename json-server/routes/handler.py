@@ -2,10 +2,12 @@ from .methods.gets import createGets
 import json
 
 
-def routesCreator(app, json_file, lock):
+def routesCreator(app, json_routes, json_file, lock):
     routes = []
     file = open(json_file)
-    for route in json.load(file):
+
+    for route in json_routes:
+        
         aux = createGets(route, json_file, lock)
         
         routes += aux

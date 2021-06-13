@@ -30,7 +30,7 @@ def main(args):
 
     # args[1] is the json file.
 
-    routesCreator(app, args[1] , threading.Lock())
+    routesCreator(app, json_data.keys(), args[1] , threading.Lock())
     
     app.run(debug=True, port=port)
 
