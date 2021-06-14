@@ -14,7 +14,7 @@ def generic_getAll(route, json_file, lock):
     }
 
     OPERATIONS = {
-        '_sort' : lambda list, key : list
+        '_sort' : lambda list, key : list.sort()
     }
 
     def func():

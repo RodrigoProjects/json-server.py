@@ -1,6 +1,7 @@
 import sys
 import json
 import flask
+from flask import render_template
 import threading
 from routes.handler import routesCreator
 
@@ -28,13 +29,41 @@ def main(args):
     
     app = flask.Flask(__name__)
 
+    mainLock = threading.Lock() # Will assure thread safe reads and writes in files.
+
     # args[1] is the json file.
 
-    routesCreator(app, json_data.keys(), args[1] , threading.Lock())
+    # Index documentation of the json-server.py generated.
+    app.add_url_rule(
+            '/',
+            'index',
+            methods = ['GET']
+        )
+
+    app.view_functions['index'] = default_route(args[1], mainLock)
+
+    # ----------------------------------------------------------
+
+    routesCreator(app, json_data.keys(), args[1] , mainLock)
     
     app.run(debug=True, port=port)
 
 
+def default_route(filename, lock):
+    def func():
+        file = open(filename)
+
+        lock.acquire() 
+
+        result = json.load(file)
+
+        lock.release()
+
+        file.close()
+
+        return render_template("index.html",data = result)
+
+    return func
 
 if __name__ == '__main__':
     main(sys.argv)
