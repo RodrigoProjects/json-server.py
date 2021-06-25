@@ -24,11 +24,11 @@
                 <div class="card" style="min-width: 30%; width: 30%">
                     <h5 class="card-header">{{ route.capitalize() }}</h5>
                     <div class="card-body" style="display:flex; flex-direction: column">
-                        <div><span class="badge badge-pill badge-primary">GET</span><span class="ml-3"> {{'/' + route }}</span></div>
-                        <div><span class="badge badge-pill badge-primary">GET</span><span class="ml-3"> {{'/' + route + '/<id>' }}</span></div>
-                        <div class="mt-2"><span class="badge badge-pill badge-success">POST</span><span class="ml-3"> {{'/' + route  }}</span></div>
-                        <div class="mt-2"><span class="badge badge-pill badge-warning">PUT</span><span class="ml-3"> {{'/' + route + '/<id>' }}</span></div>
-                        <div class="mt-2"><span class="badge badge-pill badge-danger">DELETE</span><span class="ml-3"> {{'/' + route + '/<id>' }}</span></div>
+                        <div><span class="badge badge-pill badge-primary" style="width: 15%">GET</span><span class="ml-3"> {{'/' + route }}</span></div>
+                        <div><span class="badge badge-pill badge-primary" style="width: 15%">GET</span><span class="ml-3"> {{'/' + route + '/<id>' }}</span></div>
+                        <div class="mt-2"><span class="badge badge-pill badge-success" style="width: 15%">POST</span><span class="ml-3"> {{'/' + route  }}</span></div>
+                        <div class="mt-2"><span class="badge badge-pill badge-warning" style="width: 15%">PUT</span><span class="ml-3"> {{'/' + route + '/<id>' }}</span></div>
+                        <div class="mt-2"><span class="badge badge-pill badge-danger" style="width: 15%">DELETE</span><span class="ml-3"> {{'/' + route + '/<id>' }}</span></div>
                     </div>
                     <div class="card-footer text-center">{{ data[route] | length }} <span class="text-muted ml-1">Record(s)</span></div>
                 </div>

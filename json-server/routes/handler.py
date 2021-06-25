@@ -1,5 +1,9 @@
 from .methods.gets import createGets
+from .methods.posts import createPosts
+from .methods.deletes import createDeletes
+from .methods.puts import createPuts
 import json
+
 
 
 def routesCreator(app, json_routes, json_file, lock):
@@ -8,7 +12,7 @@ def routesCreator(app, json_routes, json_file, lock):
 
     for route in json_routes:
         
-        aux = createGets(route, json_file, lock)
+        aux = createGets(route, json_file, lock) + createPosts(route, json_file, lock) + createDeletes(route, json_file, lock) + createPuts(route, json_file, lock)
         
         routes += aux
     
