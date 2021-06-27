@@ -2,6 +2,53 @@ import json
 from flask import Response, request
 import re
 
+def slice_docs(docs, keys, query_str):
+
+    range = keys.split('-')
+
+    try:
+        if len(range) >= 2:
+
+            if range[0].strip() != '' and range[1].strip() == '':
+                docs = docs[int(range[0])::range[2] if len(range) >= 3 else 1]
+            
+            elif range[0].strip() == '' and range[1].strip() != '':
+                docs = docs[:int(range[1]):range[2] if len(range) >= 3 else 1]
+
+            elif range[0].strip() == '' and range[1].strip() == '':
+                docs = docs
+            
+            else:
+                docs = docs[int(range[0]):int(range[1]):range[2] if len(range) >= 3 else 1]
+        
+        elif len(range) == 1:
+            docs = docs[int(range[0]):]
+
+        else:
+            raise Exception('Slicing operator needs at least one argument.')
+    
+    except ValueError:
+        raise Exception('One of the keys cannot be converted to an integer or no keys were provided! ' + keys)
+
+    except Exception:
+        raise Exception('Invalid keys provided! ' + keys)
+
+    return docs 
+
+def sort_docs(docs, keys, query_str):
+
+    order = query_str.get('_order').split(',')[::-1] if query_str.get('_order') else None
+
+    for idx, val in enumerate(keys.split(',')[::-1]):
+        try: 
+            docs.sort(key=lambda x: x[val], reverse= order[idx] == 'desc' if order and len(order) > idx else False)
+
+        except Exception:
+            raise Exception('Sort key was not found: ' + val)
+
+    
+    return docs 
+
 def generic_getAll(route, json_file, lock):
 
     FILTERS = {
@@ -14,7 +61,8 @@ def generic_getAll(route, json_file, lock):
     }
 
     OPERATIONS = {
-        '_sort' : lambda list, key : list.sort()
+        '_sort' : sort_docs,
+        '_slice' : slice_docs 
     }
 
     def func():
@@ -29,8 +77,16 @@ def generic_getAll(route, json_file, lock):
         file.close()
 
         filters = [arg for arg in request.args if arg[0] != '_'] # Gets all query strings that don't start with '_'.
-        operations = [arg for arg in request.args if arg[0] == '_'] # Gets all query strings that start with '_'.
+        operations = [arg for arg in request.args if arg[0] == '_' and arg not in ['_order']] # Gets all query strings that start with '_'.
         
+        if operations:
+            for op in operations:
+                try:
+                    result = OPERATIONS[op](result, request.args.get(op), request.args)
+                
+                except Exception as e:
+                    return Response(repr(e), 400, mimetype='application/json')
+
         if filters: # If we have filters in the query string.
             filtered = []
 
