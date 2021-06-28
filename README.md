@@ -103,6 +103,22 @@ Now if you go to [http://localhost:3000/posts/1](http://localhost:3000/posts/1),
 Also when doing requests, it's good to know that:
 
 - If you make POST, PUT, PATCH or DELETE requests, changes will be automatically and safely saved (*Thread save*) to `db.json`.
+- When you make a POST request json-server will see if you provided at least all the fields that exist in all of  the collection. Example:
+
+```json
+{
+    "persons" : [
+        {
+            "name" : "John"
+        },
+        {
+            "name" : "Michae"
+        }
+    ]
+}
+```
+When adding a new person via POST method you must provide a name to that person because it is consistent in all persons.
+
 - Your request body JSON should be object enclosed, just like the GET output. (for example `{"name": "Foobar"}`)
 - A POST, PUT or PATCH request should include a `Content-Type: application/json` header to use the JSON in the request body. Otherwise it will return a 2XX status code, but without changes being made to the data. 
 
