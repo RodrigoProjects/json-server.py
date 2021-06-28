@@ -227,7 +227,7 @@ GET /
 ### CLI usage
 
 ```
-json-server <json_file> <port:Optional>
+json-server <json_file:Required> <port:Optional>
 ```
 
 ## License
