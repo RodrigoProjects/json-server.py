@@ -38,6 +38,12 @@ Install JSON Server
 git clone https://github.com/RodrigoProjects/json-server.py
 ```
 
+Install Flask with pip
+
+```
+pip install Flask
+```
+
 Create a `db.json` file with some data
 
 ```json
