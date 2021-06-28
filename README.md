@@ -228,5 +228,8 @@ GET /
 
 ```
 json-server <json_file> <port:Optional>
+```
 
+## License
 
+MIT
