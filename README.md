@@ -85,7 +85,7 @@ Create a `db.json` file with some data
 Start JSON Server
 
 ```bash
-python3 json-server/main.py db.json 3000
+python3 json-server/main.py json-tests/db.json 3000
 ```
 
 Now if you go to [http://localhost:3000/posts/1](http://localhost:3000/posts/1), you'll get
