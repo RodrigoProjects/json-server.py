@@ -12,6 +12,9 @@ def generic_put(route, json_file, lock):
         lock.release()
 
         file.close()
+        
+        if type(data[route]) is dict:
+            data[route] = [data[route]]
 
         aux = []
         edited = False 
@@ -53,6 +56,6 @@ def createPuts(route, json_file, lock):
     routes = []
 
     # Deletes a document from the db. Needs the id of the document passed by params.
-    routes.append((f'/{route[0].lower() + route[1:]}/<id>', f'put{route.capitalize()}', generic_put(route, json_file, lock), ['PUT']))
+    routes.append((f'/{route[0].lower() + route[1:]}/<id>', f'put{route.capitalize()}', generic_put(route, json_file, lock), ['PUT', 'PATCH']))
 
     return routes

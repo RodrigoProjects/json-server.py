@@ -1,78 +1,43 @@
 import json
-from flask import Response, request
-import re
+from flask import Response, request # Flask response Object and request for body parsing.
+import re # Regex
+from ..utils.operations import * # Filter and Operations imported
 
-def slice_docs(docs, keys, query_str):
-
-    range = keys.split('-')
-
-    try:
-        if len(range) >= 2:
-
-            if range[0].strip() != '' and range[1].strip() == '':
-                docs = docs[int(range[0])::range[2] if len(range) >= 3 else 1]
-            
-            elif range[0].strip() == '' and range[1].strip() != '':
-                docs = docs[:int(range[1]):range[2] if len(range) >= 3 else 1]
-
-            elif range[0].strip() == '' and range[1].strip() == '':
-                docs = docs
-            
-            else:
-                docs = docs[int(range[0]):int(range[1]):range[2] if len(range) >= 3 else 1]
-        
-        elif len(range) == 1:
-            docs = docs[int(range[0]):]
-
-        else:
-            raise Exception('Slicing operator needs at least one argument.')
-    
-    except ValueError:
-        raise Exception('One of the keys cannot be converted to an integer or no keys were provided! ' + keys)
-
-    except Exception:
-        raise Exception('Invalid keys provided! ' + keys)
-
-    return docs 
-
-def sort_docs(docs, keys, query_str):
-
-    order = query_str.get('_order').split(',')[::-1] if query_str.get('_order') else None
-
-    for idx, val in enumerate(keys.split(',')[::-1]):
-        try: 
-            docs.sort(key=lambda x: x[val], reverse= order[idx] == 'desc' if order and len(order) > idx else False)
-
-        except Exception:
-            raise Exception('Sort key was not found: ' + val)
-
-    
-    return docs 
+# ------------- POSSIBLE FILTERS -------------
+FILTERS = {
+    'eq' : lambda e1, e2: e1 == e2,
+    'gt' : lambda e1, e2: e1 > e2,
+    'lt' : lambda e1, e2: e1 < e2,
+    'gte' : lambda e1, e2: e1 >= e2,
+    'lte' : lambda e1, e2: e1 <= e2,
+    'ne' : lambda e1, e2: e1 != e2
+}
+# --------------------------------------------
+# ------------- POSSIBLE OPERATIONS ----------
+OPERATIONS = {
+    '_sort' : sort_docs,
+    '_slice' : slice_docs,
+    '_expand' : expand_docs
+}
+# --------------------------------------------
 
 def generic_getAll(route, json_file, lock):
 
-    FILTERS = {
-        'eq' : lambda e1, e2: e1 == e2,
-        'gt' : lambda e1, e2: e1 > e2,
-        'lt' : lambda e1, e2: e1 < e2,
-        'gte' : lambda e1, e2: e1 >= e2,
-        'lte' : lambda e1, e2: e1 <= e2,
-        'ne' : lambda e1, e2: e1 != e2
-    }
-
-    OPERATIONS = {
-        '_sort' : sort_docs,
-        '_slice' : slice_docs 
-    }
-
     def func():
+        isDict = False 
+
         file = open(json_file)
 
         lock.acquire() 
 
-        result = json.load(file)[route]
+        data = json.load(file)
+        result = data[route]
 
         lock.release()
+
+        if type(result) is dict:
+            result = [result]
+            isDict = True
 
         file.close()
 
@@ -82,8 +47,8 @@ def generic_getAll(route, json_file, lock):
         if operations:
             for op in operations:
                 try:
-                    result = OPERATIONS[op](result, request.args.get(op), request.args)
-                
+                    result = OPERATIONS[op](result, request.args.get(op), request.args, data)
+
                 except Exception as e:
                     return Response(repr(e), 400, mimetype='application/json')
 
@@ -144,12 +109,15 @@ def generic_getAll(route, json_file, lock):
 
             result = filtered
 
+        if isDict:
+            return Response(json.dumps(result[0] if len(result) == 1 else result, indent=4),  mimetype='application/json')
 
         return Response(json.dumps(result, indent=4),  mimetype='application/json')
     
     return func
 
 def generic_getById(route, json_file, lock):
+
     def func(id):
         file = open(json_file)
 
@@ -159,12 +127,27 @@ def generic_getById(route, json_file, lock):
 
         lock.release()
 
+        if type(data[route]) is dict:
+            data[route] = [data[route]]
+        
+        operations = [arg for arg in request.args if arg[0] == '_' and arg not in ['_order']] # Gets all query strings that start with '_'.
+
+        if operations:
+            for op in operations:
+                try:
+                    data[route] = OPERATIONS[op](data[route], request.args.get(op), request.args, data)
+
+                except Exception as e:
+                    return Response(repr(e), 400, mimetype='application/json')
+
         for doc in data[route]:
             for key in doc:
                 if str(doc[key]) == id:
                     return Response(json.dumps(doc, indent=4),  mimetype='application/json')
         
+
         file.close()
+
 
         return Response(json.dumps({}),  mimetype='application/json')
 

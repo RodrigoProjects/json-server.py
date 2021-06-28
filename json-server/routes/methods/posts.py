@@ -24,6 +24,9 @@ def generic_post(route, json_file, lock):
 
         file.close()
 
+        if type(data[route]) is dict:
+            data[route] = [data[route]]
+
         required_fields = find_required_fields(data[route])
 
         body = request.get_json()
