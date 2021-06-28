@@ -5,7 +5,7 @@ This code tries to bring a [json-server](https://github.com/typicode/json-server
 
 Get a full fake REST API with __zero coding__ in __less than 30 seconds__ (seriously)
 
-Created with <3 for front-end developers who need a quick back-end for prototyping and mocking and use Python instead of Javascript.
+Created with :heart: for front-end developers who need a quick back-end for prototyping and mocking and use Python instead of Javascript.
 
 * [json-server [Javascript implementation] (Original)](https://github.com/typicode/json-server)
 
